@@ -56,6 +56,7 @@ INCS_Debug := \
 	-I/Users/jim/Library/Caches/node-gyp/12.16.2/deps/zlib \
 	-I/Users/jim/Library/Caches/node-gyp/12.16.2/deps/v8/include \
 	-I$(srcdir)/binding-src/binding-util \
+	-I$(srcdir)/HdrHistogram_c/src \
 	-I/Users/jim/Repositories/Bindings/node-hdr-histogram-napi/node_modules/node-addon-api
 
 DEFS_Release := \
@@ -109,6 +110,7 @@ INCS_Release := \
 	-I/Users/jim/Library/Caches/node-gyp/12.16.2/deps/zlib \
 	-I/Users/jim/Library/Caches/node-gyp/12.16.2/deps/v8/include \
 	-I$(srcdir)/binding-src/binding-util \
+	-I$(srcdir)/HdrHistogram_c/src \
 	-I/Users/jim/Repositories/Bindings/node-hdr-histogram-napi/node_modules/node-addon-api
 
 OBJS := \

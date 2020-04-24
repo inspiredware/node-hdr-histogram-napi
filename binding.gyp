@@ -10,6 +10,7 @@
       ],
       "include_dirs": [
         "binding-src/binding-util",
+        "HdrHistogram_c/src",
         "<!@(node -p \"require('node-addon-api').include\")"
       ],
       "dependencies": [
