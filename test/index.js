@@ -1,4 +1,4 @@
-const { HdrHistogram, HdrHistogramIterator } = require('../build/Debug/binding');
+const { HdrHistogram, HdrHistogramIterator } = require('bindings')('binding');
 
 let h = new HdrHistogram (1, 100, 2);
 let i = new HdrHistogramIterator ();

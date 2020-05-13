@@ -1,4 +1,4 @@
-// 2020-05-08T08:54:18.835-07:00 binding hdr_histogram.c (GenerateDefinitions)
+// 2020-05-12T17:52:41.772-07:00 binding hdr_histogram.c (GenerateDefinitions)
 // Created by the inspiredware automated binding generator — www.inspiredware.com
 
 #include "hdr_histogram.h"
@@ -12,230 +12,211 @@ HdrHistogram::HdrHistogram (const Napi::CallbackInfo& info)
 : Napi::ObjectWrap<HdrHistogram> (info)
 , histogram (NULL)
 {
+  Napi::Env env = info.Env();
   long long min = getNumber<long long> (info, 0);
   long long max = getNumber<long long> (info, 1);
-  int sigFigures = getNumber<int> (info, 2);
-  int result = hdr_init (min, max, sigFigures, &histogram);
-  if (result) {} // TODO: implement error handling
+  int sigFigures = info[2].IsUndefined() ? 3 : getNumber<int> (info, 2);
+  int status = hdr_init (min, max, sigFigures, &histogram);
+  if (status) { // TODO: correctly implement error handling
+    Napi::Error::New(env, "hdr_init failed.").ThrowAsJavaScriptException();
+  }
 }
 
 HdrHistogram::~HdrHistogram () {
   hdr_close (histogram); // frees memory
 }
 
-Napi::Value HdrHistogram::ResetInternalCounters (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::resetInternalCounters (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  hdr_reset_internal_counters (h);
+  hdr_reset_internal_counters (histogram);
   Napi::Value jsRetVal = env.Undefined();
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::Close (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::close (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  hdr_close (h);
+  hdr_close (histogram);
   Napi::Value jsRetVal = env.Undefined();
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::Reset (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::reset (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  hdr_reset (h);
+  hdr_reset (histogram);
   Napi::Value jsRetVal = env.Undefined();
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::GetMemorySize (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::getMemorySize (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  unsigned long retVal = hdr_get_memory_size (h);
+  unsigned long retVal = hdr_get_memory_size (histogram);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::RecordValue (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::record (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  _Bool retVal = hdr_record_value (h, value);
-  Napi::Value jsRetVal = env.Undefined();
+  long long value = getNumber<long long> (info, 0);
+  _Bool retVal = hdr_record_value (histogram, value);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::RecordValueAtomic (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::recordAtomic (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  _Bool retVal = hdr_record_value_atomic (h, value);
-  Napi::Value jsRetVal = env.Undefined();
+  long long value = getNumber<long long> (info, 0);
+  _Bool retVal = hdr_record_value_atomic (histogram, value);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::RecordValues (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::recordValues (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  long long count = getNumber<long long> (info, 2);
-  _Bool retVal = hdr_record_values (h, value, count);
-  Napi::Value jsRetVal = env.Undefined();
+  long long value = getNumber<long long> (info, 0);
+  long long count = getNumber<long long> (info, 1);
+  _Bool retVal = hdr_record_values (histogram, value, count);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::RecordValuesAtomic (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::recordValuesAtomic (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  long long count = getNumber<long long> (info, 2);
-  _Bool retVal = hdr_record_values_atomic (h, value, count);
-  Napi::Value jsRetVal = env.Undefined();
+  long long value = getNumber<long long> (info, 0);
+  long long count = getNumber<long long> (info, 1);
+  _Bool retVal = hdr_record_values_atomic (histogram, value, count);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::RecordCorrectedValue (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::recordCorrectedValue (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
+  long long value = getNumber<long long> (info, 0);
+  long long expected_interval = getNumber<long long> (info, 1);
+  _Bool retVal = hdr_record_corrected_value (histogram, value, expected_interval);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
+  return jsRetVal;
+}
+
+Napi::Value HdrHistogram::recordCorrectedValueAtomic (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  long long value = getNumber<long long> (info, 0);
+  long long expected_interval = getNumber<long long> (info, 1);
+  _Bool retVal = hdr_record_corrected_value_atomic (histogram, value, expected_interval);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
+  return jsRetVal;
+}
+
+Napi::Value HdrHistogram::recordCorrectedValues (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  long long value = getNumber<long long> (info, 0);
+  long long count = getNumber<long long> (info, 1);
   long long expected_interval = getNumber<long long> (info, 2);
-  _Bool retVal = hdr_record_corrected_value (h, value, expected_interval);
-  Napi::Value jsRetVal = env.Undefined();
+  _Bool retVal = hdr_record_corrected_values (histogram, value, count, expected_interval);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::RecordCorrectedValueAtomic (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::recordCorrectedValuesAtomic (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
+  long long value = getNumber<long long> (info, 0);
+  long long count = getNumber<long long> (info, 1);
   long long expected_interval = getNumber<long long> (info, 2);
-  _Bool retVal = hdr_record_corrected_value_atomic (h, value, expected_interval);
-  Napi::Value jsRetVal = env.Undefined();
+  _Bool retVal = hdr_record_corrected_values_atomic (histogram, value, count, expected_interval);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::RecordCorrectedValues (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::add (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  long long count = getNumber<long long> (info, 2);
-  long long expected_interval = getNumber<long long> (info, 3);
-  _Bool retVal = hdr_record_corrected_values (h, value, count, expected_interval);
-  Napi::Value jsRetVal = env.Undefined();
-  return jsRetVal;
-}
-
-Napi::Value HdrHistogram::RecordCorrectedValuesAtomic (const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  long long count = getNumber<long long> (info, 2);
-  long long expected_interval = getNumber<long long> (info, 3);
-  _Bool retVal = hdr_record_corrected_values_atomic (h, value, count, expected_interval);
-  Napi::Value jsRetVal = env.Undefined();
-  return jsRetVal;
-}
-
-Napi::Value HdrHistogram::Add (const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  struct hdr_histogram * h = 0;
-  const struct hdr_histogram * from = 0;
-  long long retVal = hdr_add (h, from);
+  long long retVal = hdr_add (histogram, histogram);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::Max (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::max (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  long long retVal = hdr_max (h);
+  long long retVal = hdr_max (histogram);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::Min (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::min (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  long long retVal = hdr_min (h);
+  long long retVal = hdr_min (histogram);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::ValueAtPercentile (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::percentile (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  float percentile;
-  long long retVal = hdr_value_at_percentile (h, percentile);
+  double percentile = getNumber<double> (info, 0);
+  long long retVal = hdr_value_at_percentile (histogram, percentile);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::Mean (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::mean (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  double retVal = hdr_mean (h);
+  double retVal = hdr_mean (histogram);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::StdDev (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::stddev (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  double retVal = hdr_stddev (h);
+  double retVal = hdr_stddev (histogram);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::ValuesAreEquivalent (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::valuesAreEquivalent (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  long long a = getNumber<long long> (info, 1);
-  long long b = getNumber<long long> (info, 2);
-  _Bool retVal = hdr_values_are_equivalent (h, a, b);
-  Napi::Value jsRetVal = env.Undefined();
+  long long a = getNumber<long long> (info, 0);
+  long long b = getNumber<long long> (info, 1);
+  _Bool retVal = hdr_values_are_equivalent (histogram, a, b);
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::LowestEquivalentValue (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::lowestEquivalentValue (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  long long retVal = hdr_lowest_equivalent_value (h, value);
+  long long value = getNumber<long long> (info, 0);
+  long long retVal = hdr_lowest_equivalent_value (histogram, value);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::CountAtValue (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::countAtValue (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  const struct hdr_histogram * h = 0;
-  long long value = getNumber<long long> (info, 1);
-  long long retVal = hdr_count_at_value (h, value);
+  long long value = getNumber<long long> (info, 0);
+  long long retVal = hdr_count_at_value (histogram, value);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }
 
 Napi::Function HdrHistogram::GetClassDef (Napi::Env env) { // static
   return DefineClass (env, "HdrHistogram", {
-    InstanceMethod ("Add", &HdrHistogram::Add),
-    InstanceMethod ("Close", &HdrHistogram::Close),
-    InstanceMethod ("CountAtValue", &HdrHistogram::CountAtValue),
-    InstanceMethod ("GetMemorySize", &HdrHistogram::GetMemorySize),
-    InstanceMethod ("LowestEquivalentValue", &HdrHistogram::LowestEquivalentValue),
-    InstanceMethod ("Max", &HdrHistogram::Max),
-    InstanceMethod ("Mean", &HdrHistogram::Mean),
-    InstanceMethod ("Min", &HdrHistogram::Min),
-    InstanceMethod ("RecordCorrectedValue", &HdrHistogram::RecordCorrectedValue),
-    InstanceMethod ("RecordCorrectedValueAtomic", &HdrHistogram::RecordCorrectedValueAtomic),
-    InstanceMethod ("RecordCorrectedValues", &HdrHistogram::RecordCorrectedValues),
-    InstanceMethod ("RecordCorrectedValuesAtomic", &HdrHistogram::RecordCorrectedValuesAtomic),
-    InstanceMethod ("RecordValue", &HdrHistogram::RecordValue),
-    InstanceMethod ("RecordValueAtomic", &HdrHistogram::RecordValueAtomic),
-    InstanceMethod ("RecordValues", &HdrHistogram::RecordValues),
-    InstanceMethod ("RecordValuesAtomic", &HdrHistogram::RecordValuesAtomic),
-    InstanceMethod ("Reset", &HdrHistogram::Reset),
-    InstanceMethod ("ResetInternalCounters", &HdrHistogram::ResetInternalCounters),
-    InstanceMethod ("StdDev", &HdrHistogram::StdDev),
-    InstanceMethod ("ValueAtPercentile", &HdrHistogram::ValueAtPercentile),
-    InstanceMethod ("ValuesAreEquivalent", &HdrHistogram::ValuesAreEquivalent)
+    InstanceMethod ("add", &HdrHistogram::add),
+    InstanceMethod ("close", &HdrHistogram::close),
+    InstanceMethod ("countAtValue", &HdrHistogram::countAtValue),
+    InstanceMethod ("getMemorySize", &HdrHistogram::getMemorySize),
+    InstanceMethod ("lowestEquivalentValue", &HdrHistogram::lowestEquivalentValue),
+    InstanceMethod ("max", &HdrHistogram::max),
+    InstanceMethod ("mean", &HdrHistogram::mean),
+    InstanceMethod ("min", &HdrHistogram::min),
+    InstanceMethod ("recordCorrectedValue", &HdrHistogram::recordCorrectedValue),
+    InstanceMethod ("recordCorrectedValueAtomic", &HdrHistogram::recordCorrectedValueAtomic),
+    InstanceMethod ("recordCorrectedValues", &HdrHistogram::recordCorrectedValues),
+    InstanceMethod ("recordCorrectedValuesAtomic", &HdrHistogram::recordCorrectedValuesAtomic),
+    InstanceMethod ("record", &HdrHistogram::record),
+    InstanceMethod ("recordAtomic", &HdrHistogram::recordAtomic),
+    InstanceMethod ("recordValues", &HdrHistogram::recordValues),
+    InstanceMethod ("recordValuesAtomic", &HdrHistogram::recordValuesAtomic),
+    InstanceMethod ("reset", &HdrHistogram::reset),
+    InstanceMethod ("resetInternalCounters", &HdrHistogram::resetInternalCounters),
+    InstanceMethod ("stddev", &HdrHistogram::stddev),
+    InstanceMethod ("percentile", &HdrHistogram::percentile),
+    InstanceMethod ("valuesAreEquivalent", &HdrHistogram::valuesAreEquivalent)
   });
 }
 
@@ -246,6 +227,7 @@ HdrHistogramIterator::HdrHistogramIterator (const Napi::CallbackInfo& info)
 : Napi::ObjectWrap<HdrHistogramIterator> (info)
 , iter ()
 {
+  Napi::Env env = info.Env();
 }
 
 HdrHistogramIterator::~HdrHistogramIterator () {
@@ -253,17 +235,15 @@ HdrHistogramIterator::~HdrHistogramIterator () {
 
 Napi::Value HdrHistogramIterator::IterNext (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_iter * iter = 0;
   _Bool retVal = hdr_iter_next (iter);
-  Napi::Value jsRetVal = env.Undefined();
+  Napi::Value jsRetVal = Boolean::New(env, retVal);
   return jsRetVal;
 }
 
 Napi::Value HdrHistogramIterator::PercentileInit (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_iter * iter = 0;
   const struct hdr_histogram * h = 0;
-  int ticks_per_half_distance = getNumber<int> (info, 2);
+  int ticks_per_half_distance = getNumber<int> (info, 1);
   hdr_iter_percentile_init (iter, h, ticks_per_half_distance);
   Napi::Value jsRetVal = env.Undefined();
   return jsRetVal;
@@ -271,7 +251,6 @@ Napi::Value HdrHistogramIterator::PercentileInit (const Napi::CallbackInfo& info
 
 Napi::Value HdrHistogramIterator::RecordedInit (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_iter * iter = 0;
   const struct hdr_histogram * h = 0;
   hdr_iter_recorded_init (iter, h);
   Napi::Value jsRetVal = env.Undefined();
@@ -280,9 +259,8 @@ Napi::Value HdrHistogramIterator::RecordedInit (const Napi::CallbackInfo& info) 
 
 Napi::Value HdrHistogramIterator::LinearInit (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  struct hdr_iter * iter = 0;
   const struct hdr_histogram * h = 0;
-  long long value_units_per_bucket = getNumber<long long> (info, 2);
+  long long value_units_per_bucket = getNumber<long long> (info, 1);
   hdr_iter_linear_init (iter, h, value_units_per_bucket);
   Napi::Value jsRetVal = env.Undefined();
   return jsRetVal;
