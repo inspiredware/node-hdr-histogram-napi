@@ -7,12 +7,21 @@ class Histogram extends HdrHistogram {
     }
 
     record (value) {
-        // TODO: this should be implemented in the binding toolkit
         if (isNumber(value)) {
             return super.record(value);
         } else {
             return false;
         }
+    }
+
+    encode () {
+        return super.getEncoded();
+    }
+
+    static decode (encoded) {
+        let histogram = new Histogram (1, 10); // values here are immaterial
+        histogram.setEncoded(encoded);
+        return histogram;
     }
 
     percentile (value) {
@@ -23,6 +32,16 @@ class Histogram extends HdrHistogram {
         } else {
             return super.percentile(value);
         }
+    }
+
+    percentiles () {
+        let result = [];
+        let iter = new HdrHistogramIterator(this);
+        iter.initPercentile(1);
+        while (iter.next()) {
+            result.push ({ percentile: iter.getPercentile(), value: iter.getValue() });
+        }
+        return result;
     }
 
     reset() {
