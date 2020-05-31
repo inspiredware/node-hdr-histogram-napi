@@ -26,7 +26,7 @@ This table shows the existing `Histogram` methods available in the [native-hdr-
 | stddev      | hdr_stddev                             | stddev                      |
 | percentile  | hdr_value_at_percentile                | percentile                  |
 | encode      | hdr_log_encode                         | encode ‡                    |
-| decode †    | hdr_log_decode                         | decode ‡                    |
+| decode †    | hdr_log_decode                         | decode †‡                   |
 | percentiles | hdr_iter_percentile_init hdr_iter_next | percentiles ‡               |
 | reset       | hdr_reset                              | reset                       |
 |             | hdr_reset_internal_counters            | resetInternalCounters       |
@@ -55,7 +55,8 @@ The immediate plan is to continue enhancing this module until it's ready for pro
 
 - [ ] Modify the `Histogram` constructor so that it is completely compatible with the [native-hdr-histogram](https://github.com/mcollina/native-hdr-histogram) version.
 - [ ] Complete detailed verification on the code.
-- [ ] Generate configuration information to support  [`prebuild`](https://github.com/prebuild/prebuild) for creating and uploading native binaries.
+- [ ] Generate configuration information to support [`prebuild`](https://github.com/prebuild/prebuild) for creating and uploading native binaries.
+- [ ] Build out unit tests.
 - [ ] Implement GitHub CI to `prebuild` for various architectures.
 - [ ] Generate complete documentation.
 - [ ] Publish to `npm`. 
