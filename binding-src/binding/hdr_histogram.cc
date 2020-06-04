@@ -1,4 +1,4 @@
-// 2020-05-14T16:54:27.408-07:00 binding hdr_histogram.c (GenerateDefinitions)
+// 2020-06-04T13:03:38.239-07:00 binding hdr_histogram.c (GenerateDefinitions)
 // Created by the inspiredware automated binding generator — www.inspiredware.com
 
 #include "hdr_histogram.h"
@@ -122,7 +122,8 @@ Napi::Value HdrHistogram::recordCorrectedValuesAtomic (const Napi::CallbackInfo&
 
 Napi::Value HdrHistogram::add (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  long long retVal = hdr_add (histogram, histogram);
+  const struct hdr_histogram * from = Napi::ObjectWrap<HdrHistogram>::Unwrap(info[0].As<Napi::Object>())->histogram;
+  long long retVal = hdr_add (histogram, from);
   Napi::Value jsRetVal = Number::New(env, retVal);
   return jsRetVal;
 }

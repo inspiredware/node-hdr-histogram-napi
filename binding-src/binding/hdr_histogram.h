@@ -1,4 +1,4 @@
-// 2020-05-14T16:54:27.133-07:00 binding hdr_histogram.c (GenerateDeclarations)
+// 2020-06-04T13:03:37.931-07:00 binding hdr_histogram.c (GenerateDeclarations)
 // Created by the inspiredware automated binding generator — www.inspiredware.com
 
 #include <napi.h>

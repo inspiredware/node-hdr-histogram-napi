@@ -1,4 +1,4 @@
-// 2020-05-14T16:54:27.826-07:00 binding (GenerateInitFiles)
+// 2020-06-04T13:03:38.617-07:00 binding (GenerateInitFiles)
 // Created by the inspiredware automated binding generator — www.inspiredware.com
 
 #include <napi.h>
