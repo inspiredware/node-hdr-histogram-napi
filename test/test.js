@@ -118,6 +118,23 @@ test('percentiles', (t) => {
   t.end()
 })
 
+test('add', (t) => {
+  const instance1 = new Histogram(1, 100)
+  t.ok(instance1.record(1))
+  t.ok(instance1.record(2))
+  t.ok(instance1.record(3))
+  t.equal(instance1.mean(), 2, 'mean is correct')
+  const instance2 = new Histogram(1, 100)
+  t.ok(instance2.record(5))
+  t.ok(instance2.record(6))
+  t.ok(instance2.record(7))
+  t.equal(instance2.mean(), 6, 'mean is correct')
+  instance1.add(instance2)
+  let x = instance1.mean()
+  t.equal(instance1.mean(), 4, 'mean is correct')
+  t.end()
+})
+
 test('support >2e9', (t) => {
   const recordValue = 4 * 1e9
   const instance = new Histogram(1, recordValue)
