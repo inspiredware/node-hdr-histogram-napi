@@ -48,6 +48,19 @@ class Histogram extends HdrHistogram {
         super.reset();
         return this;
     }
+
+    add (histogram, expected_interval) {
+        if (typeof value === 'undefined') {
+            return super.add(histogram)
+        } else {
+            return super.addWhileCorrectingForCoordinatedOmission(histogram, expected_interval)
+        }
+    }
+
+    highestEquivalentValue (value) {
+        return super.nextNonEquivalentValue(value) - 1;
+    }
+
 }
 
 module.exports.Histogram = Histogram;

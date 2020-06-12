@@ -1,4 +1,4 @@
-// 2020-06-04T13:03:38.239-07:00 binding hdr_histogram.c (GenerateDefinitions)
+// 2020-06-11T16:53:08.593-07:00 binding hdr_histogram.c (GenerateDefinitions)
 // Created by the inspiredware automated binding generator — www.inspiredware.com
 
 #include "hdr_histogram.h"
@@ -27,6 +27,30 @@ HdrHistogram::~HdrHistogram () {
   hdr_close (histogram); // frees memory
 }
 
+Napi::Value HdrHistogram::sizeOfEquivalentValueRange (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  long long value = getNumber<long long> (info, 0);
+  long long retVal = hdr_size_of_equivalent_value_range (histogram, value);
+  Napi::Value jsRetVal = Number::New(env, retVal);
+  return jsRetVal;
+}
+
+Napi::Value HdrHistogram::nextNonEquivalentValue (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  long long value = getNumber<long long> (info, 0);
+  long long retVal = hdr_next_non_equivalent_value (histogram, value);
+  Napi::Value jsRetVal = Number::New(env, retVal);
+  return jsRetVal;
+}
+
+Napi::Value HdrHistogram::medianEquivalentValue (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  long long value = getNumber<long long> (info, 0);
+  long long retVal = hdr_median_equivalent_value (histogram, value);
+  Napi::Value jsRetVal = Number::New(env, retVal);
+  return jsRetVal;
+}
+
 Napi::Value HdrHistogram::resetInternalCounters (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   hdr_reset_internal_counters (histogram);
@@ -41,7 +65,7 @@ Napi::Value HdrHistogram::reset (const Napi::CallbackInfo& info) {
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::getMemorySize (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::memorySize (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   unsigned long retVal = hdr_get_memory_size (histogram);
   Napi::Value jsRetVal = Number::New(env, retVal);
@@ -128,6 +152,15 @@ Napi::Value HdrHistogram::add (const Napi::CallbackInfo& info) {
   return jsRetVal;
 }
 
+Napi::Value HdrHistogram::addWhileCorrectingForCoordinatedOmission (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  struct hdr_histogram * from = Napi::ObjectWrap<HdrHistogram>::Unwrap(info[0].As<Napi::Object>())->histogram;
+  long long expected_interval = getNumber<long long> (info, 1);
+  long long retVal = hdr_add_while_correcting_for_coordinated_omission (histogram, from, expected_interval);
+  Napi::Value jsRetVal = Number::New(env, retVal);
+  return jsRetVal;
+}
+
 Napi::Value HdrHistogram::max (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   long long retVal = hdr_max (histogram);
@@ -201,6 +234,36 @@ Napi::Value HdrHistogram::getEncoded (const Napi::CallbackInfo& info) {
   return jsRetVal;
 }
 
+Napi::Value HdrHistogram::getLowestTrackableValue (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::Value getVal = Number::New(env, histogram->lowest_trackable_value);
+  return getVal;
+}
+
+Napi::Value HdrHistogram::getHighestTrackableValue (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::Value getVal = Number::New(env, histogram->highest_trackable_value);
+  return getVal;
+}
+
+Napi::Value HdrHistogram::getUnitMagnitude (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::Value getVal = Number::New(env, histogram->unit_magnitude);
+  return getVal;
+}
+
+Napi::Value HdrHistogram::getSignificantFigures (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::Value getVal = Number::New(env, histogram->significant_figures);
+  return getVal;
+}
+
+Napi::Value HdrHistogram::getTotalCount (const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::Value getVal = Number::New(env, histogram->total_count);
+  return getVal;
+}
+
 Napi::Value HdrHistogram::setEncoded (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::Buffer<char> buffer = info[0].As< Napi::Buffer<char> >();
@@ -213,8 +276,9 @@ Napi::Value HdrHistogram::setEncoded (const Napi::CallbackInfo& info) {
 Napi::Function HdrHistogram::GetClassDef (Napi::Env env) { // static
   return DefineClass (env, "HdrHistogram", {
     InstanceMethod ("add", &HdrHistogram::add),
+    InstanceMethod ("addWhileCorrectingForCoordinatedOmission", &HdrHistogram::addWhileCorrectingForCoordinatedOmission),
     InstanceMethod ("countAtValue", &HdrHistogram::countAtValue),
-    InstanceMethod ("getMemorySize", &HdrHistogram::getMemorySize),
+    InstanceMethod ("memorySize", &HdrHistogram::memorySize),
     InstanceMethod ("lowestEquivalentValue", &HdrHistogram::lowestEquivalentValue),
     InstanceMethod ("max", &HdrHistogram::max),
     InstanceMethod ("mean", &HdrHistogram::mean),
@@ -232,13 +296,21 @@ Napi::Function HdrHistogram::GetClassDef (Napi::Env env) { // static
     InstanceMethod ("stddev", &HdrHistogram::stddev),
     InstanceMethod ("percentile", &HdrHistogram::percentile),
     InstanceMethod ("valuesAreEquivalent", &HdrHistogram::valuesAreEquivalent),
+    InstanceMethod ("nextNonEquivalentValue", &HdrHistogram::nextNonEquivalentValue),
+    InstanceMethod ("medianEquivalentValue", &HdrHistogram::medianEquivalentValue),
+    InstanceMethod ("sizeOfEquivalentValueRange", &HdrHistogram::sizeOfEquivalentValueRange),
     InstanceMethod ("getEncoded", &HdrHistogram::getEncoded),
+    InstanceAccessor ("lowestTrackableValue", &HdrHistogram::getLowestTrackableValue, nullptr, napi_default),
+    InstanceAccessor ("highestTrackableValue", &HdrHistogram::getHighestTrackableValue, nullptr, napi_default),
+    InstanceAccessor ("unitMagnitude", &HdrHistogram::getUnitMagnitude, nullptr, napi_default),
+    InstanceAccessor ("significantFigures", &HdrHistogram::getSignificantFigures, nullptr, napi_default),
+    InstanceAccessor ("totalCount", &HdrHistogram::getTotalCount, nullptr, napi_default),
     InstanceMethod ("setEncoded", &HdrHistogram::setEncoded),
   });
 }
 
 // pseudoClass HdrHistogram definition end //
-// pseudoClass HdrHistogramIterator definition begin //
+// pseudoClass HdrHistogramIterator definition begin // 
 
 HdrHistogramIterator::HdrHistogramIterator (const Napi::CallbackInfo& info)
 : Napi::ObjectWrap<HdrHistogramIterator> (info)

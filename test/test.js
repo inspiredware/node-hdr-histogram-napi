@@ -51,6 +51,18 @@ test('stdev, mean, min, max', (t) => {
   t.end()
 })
 
+test('lowestTrackableValue, highestTrackableValue, significantFigures, unitMagnitude, totalCount', (t) => {
+  const instance = new Histogram(1, 100)
+  t.ok(instance.record(42))
+  t.ok(instance.record(45))
+  t.equal(instance.lowestTrackableValue, 1, 'lowestTrackableValue is available')
+  t.equal(instance.highestTrackableValue, 100, 'highestTrackableValue is available')
+  t.equal(instance.significantFigures, 3, 'significantFigures is available')
+  t.equal(instance.unitMagnitude, 0, 'unitMagnitude is available')
+  t.equal(instance.totalCount, 2, 'totalCount is available')
+  t.end()
+})
+
 test('percentile', (t) => {
   const instance = new Histogram(1, 100)
   t.ok(instance.record(42))
