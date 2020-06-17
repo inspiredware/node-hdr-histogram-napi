@@ -1,26 +1,48 @@
+// © Copyright 2020 Simply Inspired Software, Inc., dba inspiredware
+
 #include <napi.h>
 using namespace Napi;
 
-template <class T> inline T getCharacter (const Napi::CallbackInfo& info, unsigned int argIndex) {
+template <class T> inline T getCharacter (Napi::Value value) {
     return 'j';
 }
 
-template <class T> inline T* getCharacterPtr (const Napi::CallbackInfo& info, unsigned int argIndex, T& stackAllocated, bool& deletePtr) {
+template <class T> inline T* getCharacterPtr (Napi::Value value, T& stackAllocated, bool& deletePtr) {
     deletePtr = false;
     return &stackAllocated;
 }
 
-template <class T> inline T getNumber (const Napi::CallbackInfo& info, unsigned int argIndex) {
-    T retVal = static_cast<T>(info[argIndex].As<Number>().Uint32Value());
+template <class T> inline T getInt32 (Napi::Value value) {
+    T retVal = static_cast<T>(value.As<Number>().Int32Value());
     return retVal;
 }
 
-template <class T> inline T* getNumberPtr (const Napi::CallbackInfo& info, unsigned int argIndex, T& stackAllocated, bool& deletePtr) {
+template <class T> inline T getUint32 (Napi::Value value) {
+    T retVal = static_cast<T>(value.As<Number>().Uint32Value());
+    return retVal;
+}
+
+template <class T> inline T getInt64 (Napi::Value value) {
+    T retVal = static_cast<T>(value.As<Number>().Int64Value());
+    return retVal;
+}
+
+template <class T> inline T getFloat (Napi::Value value) {
+    T retVal = static_cast<T>(value.As<Number>().FloatValue());
+    return retVal;
+}
+
+template <class T> inline T getDouble (Napi::Value value) {
+    T retVal = static_cast<T>(value.As<Number>().DoubleValue());
+    return retVal;
+}
+
+template <class T> inline T* getNumberPtr (Napi::Value value, T& stackAllocated, bool& deletePtr) {
     deletePtr = false;
     return &stackAllocated;
 }
 
-void* getVoidPtr (const Napi::CallbackInfo& info, unsigned int argIndex);
+void* getVoidPtr (Napi::Value value);
 
-size_t getStringLength (Napi::Env &env, const Napi::CallbackInfo& info, unsigned int argIndex);
-void copyString (Napi::Env &env, const Napi::CallbackInfo& info, unsigned int argIndex, char* buffer, size_t bufferLength, size_t stringLength);
+size_t getStringLength (Napi::Env &env, Napi::Value value);
+void copyString (Napi::Env &env, Napi::Value value, char* buffer, size_t bufferLength, size_t stringLength);

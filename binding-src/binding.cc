@@ -1,4 +1,5 @@
-// 2020-06-11T16:53:09.132-07:00 binding (GenerateInitFiles)
+// 2020-06-16T17:09:23.639-07:00 binding (GenerateInitFiles)
+// © Copyright 2020 Simply Inspired Software, Inc., dba inspiredware
 // Created by the inspiredware automated binding generator — www.inspiredware.com
 
 #include <napi.h>

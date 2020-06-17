@@ -50,7 +50,7 @@ class Histogram extends HdrHistogram {
     }
 
     add (histogram, expected_interval) {
-        if (typeof value === 'undefined') {
+        if (typeof expected_interval === 'undefined') {
             return super.add(histogram)
         } else {
             return super.addWhileCorrectingForCoordinatedOmission(histogram, expected_interval)
