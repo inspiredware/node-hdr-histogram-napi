@@ -1,6 +1,6 @@
 {
   "name": "node-hdr-histogram-napi",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A lightweight N-API wrapper for the HdrHistogram_c library",
   "author": "Jim Schlight <jim@inspiredware.com>",
   "license": "MIT",
@@ -8,7 +8,9 @@
     "install": "prebuild-install --runtime napi || node-gyp rebuild",
     "clean": "rm -rf build && rm -rf prebuilds",
     "build": "prebuild --runtime napi --all --verbose",
+    "build:debug": "prebuild --runtime napi --all --verbose --debug",
     "rebuild": "npm run clean && npm run build",
+    "rebuild:debug": "npm run clean && npm run build:debug",
     "prebuild": "prebuild --runtime napi --all --strip --verbose",
     "upload": "prebuild --runtime napi --upload ${GITHUB_TOKEN}",
     "test": "tap test/test.js"

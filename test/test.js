@@ -30,6 +30,7 @@ test('record values in an histogram', (t) => {
   const instance = new Histogram(1, 100)
   t.ok(instance.record(42))
   t.ok(instance.record(45))
+  t.equal(instance.totalCount, 2, 'recordValue increments totalCount')
   t.end()
 })
 
@@ -37,6 +38,61 @@ test('recording a non-value returns false', (t) => {
   const instance = new Histogram(1, 100)
   t.notOk(instance.record())
   t.notOk(instance.record(-42))
+  t.end()
+})
+
+test('record values with counts', (t) => {
+  const testValueLevel = 4
+
+  const multiplier = 10
+  const instance = new Histogram(1, 360000, 3)
+  for (let i = 1; i < 5; i++) {
+    instance.recordValues(i, multiplier)
+    t.equal(i * multiplier, instance.totalCount, 'record(value, count) increments totalCount')
+  }
+  t.ok(instance.reset())
+
+  for (let j = 1; j < 5; j++) {
+    instance.recordValues(testValueLevel, multiplier)
+    t.equal(j * multiplier, instance.countAtValue(testValueLevel), 'record(value, count) increments countAtValue')
+  }
+
+  t.end()
+})
+
+test('recordCorrectedValue', (t) => {
+  const INTERVAL = 10000
+  const HIGHEST = 3600 * 1000 * 1000
+  const SIGNIFICANT = 3
+  const instance = new Histogram(1, HIGHEST, SIGNIFICANT)
+
+  // record this value with a count of 10,000
+  instance.recordCorrectedValues(1000, INTERVAL, 10000)
+  instance.recordCorrectedValue(100000000, INTERVAL)
+
+  function checkPercentile (percentile, value, tolerance) {
+    const valueAt = instance.percentile(percentile)
+    const diff = Math.abs(valueAt - value)
+    const val = value * tolerance
+    t.ok(diff < val)
+  }
+
+  const percentiles = [
+    [30.0, 1000.0],
+    [50.0, 1000.0],
+    [75.0, 50000000.0],
+    [90.0, 80000000.0],
+    [99.0, 98000000.0],
+    [99.999, 100000000.0],
+    [100.0, 100000000.0]
+  ]
+
+  percentiles.forEach(pair => {
+    checkPercentile(pair[0], pair[1], 0.001)
+  })
+  t.equal(instance.totalCount, 20000, 'counts match')
+  t.ok(instance.valuesAreEquivalent(instance.min(), 1000.0))
+  t.ok(instance.valuesAreEquivalent(instance.max(), 100000000.0))
   t.end()
 })
 
@@ -48,6 +104,21 @@ test('stdev, mean, min, max', (t) => {
   t.equal(instance.max(), 45, 'max is available')
   t.equal(instance.mean(), 43.5, 'mean is available')
   t.equal(instance.stddev(), 1.5, 'stdev is available')
+  t.end()
+})
+
+test('properties', (t) => {
+  const instance = new Histogram(5, 150, 4)
+
+  t.equal(instance.lowestTrackableValue, 5, 'properly returns lowestTrackableValue')
+  t.equal(instance.highestTrackableValue, 150, 'properly returns highestTrackableValue')
+  t.equal(instance.significantFigures, 4, 'properly returns significantFigures')
+  t.equal(instance.unitMagnitude, 2, 'properly returns unitMagnitude')
+  t.equal(instance.totalCount, 0, 'properly returns totalCount')
+  t.equal(instance.getMemorySize() > 0, true, 'memory allocated for instance')
+  t.ok(instance.record(42))
+  t.ok(instance.record(44))
+  t.equal(instance.totalCount, 2, 'properly returns totalCount after add')
   t.end()
 })
 
@@ -86,10 +157,10 @@ test('encode/decode', (t) => {
 })
 
 test('fail decode', (t) => {
-  t.throws(() => Histogram.decode())
-  t.throws(() => Histogram.decode('hello'))
-  t.throws(() => Histogram.decode({}))
-  t.throws(() => Histogram.decode(42))
+  t.throws(() => new Histogram.decode())
+  t.throws(() => new Histogram.decode('hello'))
+  t.throws(() => new Histogram.decode({}))
+  t.throws(() => new Histogram.decode(42))
   t.end()
 })
 
@@ -118,23 +189,6 @@ test('percentiles', (t) => {
   t.end()
 })
 
-test('add', (t) => {
-  const instance1 = new Histogram(1, 100)
-  t.ok(instance1.record(1))
-  t.ok(instance1.record(2))
-  t.ok(instance1.record(3))
-  t.equal(instance1.mean(), 2, 'mean is correct')
-  const instance2 = new Histogram(1, 100)
-  t.ok(instance2.record(5))
-  t.ok(instance2.record(6))
-  t.ok(instance2.record(7))
-  t.equal(instance2.mean(), 6, 'mean is correct')
-  instance1.add(instance2)
-  let x = instance1.mean()
-  t.equal(instance1.mean(), 4, 'mean is correct')
-  t.end()
-})
-
 test('support >2e9', (t) => {
   const recordValue = 4 * 1e9
   const instance = new Histogram(1, recordValue)
@@ -155,12 +209,149 @@ test('support >2e9', (t) => {
   t.end()
 })
 
+test('simple add histogram', (t) => {
+  const instance1 = new Histogram(1, 100)
+  t.ok(instance1.record(1))
+  t.ok(instance1.record(2))
+  t.ok(instance1.record(3))
+  t.equal(instance1.mean(), 2, 'mean is correct')
+  const instance2 = new Histogram(1, 200)
+  t.ok(instance2.record(5))
+  t.ok(instance2.record(6))
+  t.ok(instance2.record(7))
+  t.equal(instance2.mean(), 6, 'mean is correct')
+  const dropped = instance1.add(instance2)
+  t.equal(dropped, 0, 'nothing dropped')
+  t.equal(instance1.mean(), 4, 'mean is correct')
+  t.end()
+})
+
+test('comprehensive add histogram', (t) => {
+  const highestTrackableValue = 3600 * 1000 * 1000 // 1 hour in usec units
+  const numberOfSignificantValueDigits = 3 // Maintain at least 3 decimal points of accuracy
+  const testValueLevel = 4
+
+  const histogram = new Histogram(1, highestTrackableValue, numberOfSignificantValueDigits)
+  const other = new Histogram(1, highestTrackableValue, numberOfSignificantValueDigits)
+
+  histogram.record(testValueLevel)
+  histogram.record(testValueLevel * 1000)
+  other.record(testValueLevel)
+  other.record(testValueLevel * 1000)
+
+  histogram.add(other)
+  t.equal(histogram.countAtValue(testValueLevel), 2)
+  t.equal(histogram.countAtValue(testValueLevel * 1000), 2)
+  t.equal(histogram.totalCount, 4, 'add should increase the totalCount of the destination by the count added')
+
+  const biggerOther = new Histogram(1, highestTrackableValue * 2, numberOfSignificantValueDigits)
+  biggerOther.record(testValueLevel)
+  biggerOther.record(testValueLevel * 1000)
+  biggerOther.record(highestTrackableValue * 2)
+
+  // Adding the smaller histogram to the bigger one should work:
+  const dropped = biggerOther.add(histogram)
+  t.equal(dropped, 0, 'no values should be dropped if a histogram with a smaller range is added')
+  t.equal(biggerOther.countAtValue(testValueLevel), 3)
+  t.equal(biggerOther.countAtValue(testValueLevel * 1000), 3)
+  t.equal(biggerOther.countAtValue(highestTrackableValue * 2), 1) // overflow smaller hist...
+  t.equal(biggerOther.totalCount, 7)
+
+  // But trying to add a larger histogram into a smaller one should cause values to be dropped
+  t.equal(histogram.add(biggerOther), 1, 'add a larger histogram to a smaller one causes out of range values to be dropped')
+
+  t.equal(histogram.add(other, 42), 0, 'add with expected_interval succeeds')
+  t.end()
+})
+
+test('fail add', (t) => {
+  const instance = new Histogram(1, 100)
+  t.throws(() => instance.add())
+  t.throws(() => instance.add('hello'))
+  t.throws(() => instance.add({}))
+  t.end()
+})
+
+test('add with subclasses', (t) => {
+  class Subclass extends Histogram {
+    constructor () {
+      super(1, 100)
+    }
+  }
+
+  const instance = new Histogram(1, 100)
+  const sub = new Subclass()
+  for (let i = 0; i < 5; i++) {
+    sub.record((i + 1) * 10)
+  }
+  t.equal(instance.add(sub), 0, 'can add from subclass')
+  t.equal(instance.totalCount, sub.totalCount, 'totalCount is correct after add')
+  t.end()
+})
+
+test('totalCount', (t) => {
+  const instance = new Histogram(1, 100)
+  const count = Math.floor(Math.random() * 20) + 10
+  for (let i = 0; i < count; i++) {
+    instance.record(i + 1)
+  }
+  t.equal(instance.totalCount, count, 'totalCount is correct after add')
+  t.ok(instance.reset())
+  t.equal(instance.totalCount, 0, 'totalCount is correct after reset')
+  t.end()
+})
+
+test('countAtValue', (t) => {
+  const instance = new Histogram(1, 100)
+  const testValueLevel = 4
+  const count = Math.floor(Math.random() * 20) + 10
+  for (let i = 0; i < count; i++) {
+    instance.record(testValueLevel)
+  }
+  t.equal(instance.countAtValue(testValueLevel), count, 'record increments countAtValue')
+  t.ok(instance.reset())
+  t.equal(instance.countAtValue(testValueLevel), 0, 'reset() sets count to zero')
+  t.end()
+})
+
+test('valuesAreEquivalent', (t) => {
+  const instance = new Histogram(20000000, 100000000, 5)
+  instance.record(100000000)
+  instance.record(20000000)
+  instance.record(30000000)
+  t.equal(true, instance.valuesAreEquivalent(20000000, instance.percentile(50.0)))
+  t.equal(true, instance.valuesAreEquivalent(30000000, instance.percentile(50.0)))
+  t.equal(true, instance.valuesAreEquivalent(100000000, instance.percentile(83.34)))
+  t.equal(true, instance.valuesAreEquivalent(100000000, instance.percentile(99.0)))
+  t.end()
+})
+
+test('lowestEquivalentValue', (t) => {
+  const histogram = new Histogram(1, 3600 * 1000 * 1000, 3) // e.g. for 1 hr in usec units;
+  t.equal(histogram.lowestEquivalentValue(10007), 10000, 'The lowest equivalent value to 10007 is 10000')
+  t.equal(histogram.lowestEquivalentValue(10009), 10008, 'The lowest equivalent value to 10009 is 10008')
+  t.end()
+})
+
+test('highestEquivalentValue', (t) => {
+  const histogram = new Histogram(1024, 3600000000, 3)
+  t.equal(histogram.highestEquivalentValue(8180 * 1024), 8183 * 1024 + 1023, 'The highest equivalent value to 8180 * 1024 is 8183 * 1024 + 1023')
+  t.equal(histogram.highestEquivalentValue(8191 * 1024), 8191 * 1024 + 1023, 'The highest equivalent value to 8187 * 1024 is 8191 * 1024 + 1023')
+  t.equal(histogram.highestEquivalentValue(8193 * 1024), 8199 * 1024 + 1023, 'The highest equivalent value to 8193 * 1024 is 8199 * 1024 + 1023')
+  t.equal(histogram.highestEquivalentValue(9995 * 1024), 9999 * 1024 + 1023, 'The highest equivalent value to 9995 * 1024 is 9999 * 1024 + 1023')
+  t.equal(histogram.highestEquivalentValue(10007 * 1024), 10007 * 1024 + 1023, 'The highest equivalent value to 10007 * 1024 is 10007 * 1024 + 1023')
+  t.equal(histogram.highestEquivalentValue(10008 * 1024), 10015 * 1024 + 1023, 'The highest equivalent value to 10008 * 1024 is 10015 * 1024 + 1023')
+  t.end()
+})
+
 test('reset histogram', (t) => {
   const instance = new Histogram(1, 100)
   t.equal(instance.min(), 9223372036854776000, 'min is setup')
   t.equal(instance.max(), 0, 'max is setup')
+  t.equal(instance.totalCount, 0, 'totalCount is setup')
   t.ok(instance.record(42))
   t.ok(instance.record(45))
+  t.equal(instance.totalCount, 2, 'totalCount is correct before reset')
   t.equal(instance.min(), 42, 'min is correct before reset')
   t.equal(instance.max(), 45, 'max is correct before reset')
   t.equal(instance.mean(), 43.5, 'mean is correct before reset')
@@ -168,8 +359,10 @@ test('reset histogram', (t) => {
   t.ok(instance.reset())
   t.equal(instance.min(), 9223372036854776000, 'min is reset')
   t.equal(instance.max(), 0, 'max is reset')
+  t.equal(instance.totalCount, 0, 'totalCount is reset')
   t.ok(instance.record(52))
   t.ok(instance.record(55))
+  t.equal(instance.totalCount, 2, 'totalCount is correct after reset')
   t.equal(instance.min(), 52, 'min is correct after reset')
   t.equal(instance.max(), 55, 'max is correct after reset')
   t.equal(instance.mean(), 53.5, 'mean is correct after reset')
