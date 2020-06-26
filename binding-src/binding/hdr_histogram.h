@@ -1,6 +1,7 @@
-// 2020-06-16T17:09:22.946-07:00 binding hdr_histogram.c (GenerateDeclarations)
+// 2020-06-26T15:58:55.941-07:00 binding hdr_histogram.c (GenerateDeclarations)
 // © Copyright 2020 Simply Inspired Software, Inc., dba inspiredware
-// Created by the inspiredware automated binding generator — www.inspiredware.com
+// Released under the MIT License — https://en.wikipedia.org/wiki/MIT_License
+// Created by the inspiredware automated binding generator — https://inspiredware.com
 
 #include <napi.h>
 #include <hdr_histogram.h> // from the origin library
@@ -18,7 +19,7 @@ class HdrHistogram : public Napi::ObjectWrap<HdrHistogram> {
   Napi::Value recordCorrectedValueAtomic (const Napi::CallbackInfo& info);
   Napi::Value recordCorrectedValues (const Napi::CallbackInfo& info);
   Napi::Value recordCorrectedValuesAtomic (const Napi::CallbackInfo& info);
-  Napi::Value record (const Napi::CallbackInfo& info);
+  Napi::Value recordValue (const Napi::CallbackInfo& info);
   Napi::Value recordAtomic (const Napi::CallbackInfo& info);
   Napi::Value recordValues (const Napi::CallbackInfo& info);
   Napi::Value recordValuesAtomic (const Napi::CallbackInfo& info);
@@ -33,11 +34,9 @@ class HdrHistogram : public Napi::ObjectWrap<HdrHistogram> {
   Napi::Value medianEquivalentValue (const Napi::CallbackInfo& info);
   Napi::Value min (const Napi::CallbackInfo& info);
   Napi::Value nextNonEquivalentValue (const Napi::CallbackInfo& info);
-  Napi::Value sizeOfEquivalentValueRange (const Napi::CallbackInfo& info);
   Napi::Value percentile (const Napi::CallbackInfo& info);
   Napi::Value getMemorySize (const Napi::CallbackInfo& info);
   Napi::Value reset (const Napi::CallbackInfo& info);
-  Napi::Value resetInternalCounters (const Napi::CallbackInfo& info);
 
   Napi::Value getEncoded (const Napi::CallbackInfo& info);
   Napi::Value getHighestTrackableValue (const Napi::CallbackInfo& info);

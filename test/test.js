@@ -122,6 +122,26 @@ test('properties', (t) => {
   t.end()
 })
 
+test('record values', (t) => {
+  const instance = new Histogram(1, 100)
+  t.ok(instance.record(10, 3))
+  t.equal(instance.min(), 10, 'min is correct')
+  t.equal(instance.max(), 10, 'max is correct')
+  t.equal(instance.mean(), 10, 'mean is correct')
+  t.equal(instance.totalCount, 3, 'metotalCountan is correct')
+  t.ok(instance.record(30, 3))
+  t.equal(instance.min(), 10, 'min is correct')
+  t.equal(instance.max(), 30, 'max is correct')
+  t.equal(instance.mean(), 20, 'mean is correct')
+  t.equal(instance.totalCount, 6, 'metotalCountan is correct')
+  t.ok(instance.record(40, 6))
+  t.equal(instance.min(), 10, 'min is correct')
+  t.equal(instance.max(), 40, 'max is correct')
+  t.equal(instance.mean(), 30, 'mean is correct')
+  t.equal(instance.totalCount, 12, 'metotalCountan is correct')
+  t.end()
+})
+
 test('percentile', (t) => {
   const instance = new Histogram(1, 100)
   t.ok(instance.record(42))

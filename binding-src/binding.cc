@@ -1,6 +1,7 @@
-// 2020-06-16T17:09:23.639-07:00 binding (GenerateInitFiles)
+// 2020-06-26T15:58:56.777-07:00 binding (GenerateInitFiles)
 // © Copyright 2020 Simply Inspired Software, Inc., dba inspiredware
-// Created by the inspiredware automated binding generator — www.inspiredware.com
+// Released under the MIT License — https://en.wikipedia.org/wiki/MIT_License
+// Created by the inspiredware automated binding generator — https://inspiredware.com
 
 #include <napi.h>
 #include "binding/hdr_histogram.h"

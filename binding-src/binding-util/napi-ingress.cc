@@ -1,4 +1,5 @@
 // © Copyright 2020 Simply Inspired Software, Inc., dba inspiredware
+// Released under The MIT License — https://en.wikipedia.org/wiki/MIT_License
 
 #include "napi-ingress.h"
 #include <napi.h>

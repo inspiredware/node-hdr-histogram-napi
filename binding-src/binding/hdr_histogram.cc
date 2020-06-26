@@ -1,6 +1,7 @@
-// 2020-06-16T17:09:23.251-07:00 binding hdr_histogram.c (GenerateDefinitions)
+// 2020-06-26T15:58:56.322-07:00 binding hdr_histogram.c (GenerateDefinitions)
 // © Copyright 2020 Simply Inspired Software, Inc., dba inspiredware
-// Created by the inspiredware automated binding generator — www.inspiredware.com
+// Released under the MIT License — https://en.wikipedia.org/wiki/MIT_License
+// Created by the inspiredware automated binding generator — https://inspiredware.com
 
 #include "hdr_histogram.h"
 #include "napi-ingress.h"
@@ -66,7 +67,7 @@ Napi::Value HdrHistogram::recordCorrectedValuesAtomic (const Napi::CallbackInfo&
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::record (const Napi::CallbackInfo& info) {
+Napi::Value HdrHistogram::recordValue (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   long long value = getInt64<long long> (info[0]);
   _Bool retVal = hdr_record_value (histogram, value);
@@ -186,14 +187,6 @@ Napi::Value HdrHistogram::nextNonEquivalentValue (const Napi::CallbackInfo& info
   return jsRetVal;
 }
 
-Napi::Value HdrHistogram::sizeOfEquivalentValueRange (const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  long long value = getInt64<long long> (info[0]);
-  long long retVal = hdr_size_of_equivalent_value_range (histogram, value);
-  Napi::Value jsRetVal = Number::New (env, retVal);
-  return jsRetVal;
-}
-
 Napi::Value HdrHistogram::percentile (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   double percentile = getDouble<double> (info[0]);
@@ -212,13 +205,6 @@ Napi::Value HdrHistogram::getMemorySize (const Napi::CallbackInfo& info) {
 Napi::Value HdrHistogram::reset (const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   hdr_reset (histogram);
-  Napi::Value jsRetVal = env.Undefined();
-  return jsRetVal;
-}
-
-Napi::Value HdrHistogram::resetInternalCounters (const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  hdr_reset_internal_counters (histogram);
   Napi::Value jsRetVal = env.Undefined();
   return jsRetVal;
 }
@@ -288,18 +274,16 @@ Napi::Function HdrHistogram::GetClassDef (Napi::Env env) { // static
     InstanceMethod ("recordCorrectedValueAtomic", &HdrHistogram::recordCorrectedValueAtomic),
     InstanceMethod ("recordCorrectedValues", &HdrHistogram::recordCorrectedValues),
     InstanceMethod ("recordCorrectedValuesAtomic", &HdrHistogram::recordCorrectedValuesAtomic),
-    InstanceMethod ("record", &HdrHistogram::record),
+    InstanceMethod ("recordValue", &HdrHistogram::recordValue),
     InstanceMethod ("recordAtomic", &HdrHistogram::recordAtomic),
     InstanceMethod ("recordValues", &HdrHistogram::recordValues),
     InstanceMethod ("recordValuesAtomic", &HdrHistogram::recordValuesAtomic),
     InstanceMethod ("reset", &HdrHistogram::reset),
-    InstanceMethod ("resetInternalCounters", &HdrHistogram::resetInternalCounters),
     InstanceMethod ("stddev", &HdrHistogram::stddev),
     InstanceMethod ("percentile", &HdrHistogram::percentile),
     InstanceMethod ("valuesAreEquivalent", &HdrHistogram::valuesAreEquivalent),
     InstanceMethod ("nextNonEquivalentValue", &HdrHistogram::nextNonEquivalentValue),
     InstanceMethod ("medianEquivalentValue", &HdrHistogram::medianEquivalentValue),
-    InstanceMethod ("sizeOfEquivalentValueRange", &HdrHistogram::sizeOfEquivalentValueRange),
     InstanceMethod ("getEncoded", &HdrHistogram::getEncoded),
     InstanceMethod ("setEncoded", &HdrHistogram::setEncoded),
     InstanceAccessor ("highestTrackableValue", &HdrHistogram::getHighestTrackableValue, nullptr, napi_default),

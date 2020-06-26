@@ -6,9 +6,13 @@ class Histogram extends HdrHistogram {
         super(min, max, sigDigits);
     }
 
-    record (value) {
+    record (value, count) {
         if (isNumber(value)) {
-            return super.record(value);
+          if (typeof count === 'undefined') {
+            return super.recordValue(value);
+          } else {
+            return super.recordValues(value, count);
+          }
         } else {
             return false;
         }
@@ -19,7 +23,7 @@ class Histogram extends HdrHistogram {
     }
 
     static decode (encoded) {
-        let histogram = new Histogram (1, 10); // values here are immaterial
+        let histogram = new Histogram (1, 10); // the values here are immaterial
         histogram.setEncoded(encoded);
         return histogram;
     }
