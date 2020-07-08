@@ -209,6 +209,60 @@ test('percentiles', (t) => {
   t.end()
 })
 
+test('linear, log, and recorded counts', (t) => {
+  const countTotal = (counts => {
+    return counts.reduce((total, entry) => 
+      total + entry.count, 0)
+  })
+
+  const highest_trackable_value = 3600 * 1000 * 1000
+  const significant_figures = 3
+  const interval = 10000
+
+  const raw_histogram = new Histogram(1, highest_trackable_value, significant_figures)
+  const cor_histogram = new Histogram(1, highest_trackable_value, significant_figures)
+
+  for (let i = 0; i < 10000; i++) {
+    raw_histogram.recordValue(1000)
+    cor_histogram.recordCorrectedValue(1000, interval)
+  }
+
+  raw_histogram.recordValue(100000000)
+  cor_histogram.recordCorrectedValue(100000000, 10000)
+
+  const linearCounts = raw_histogram.linearcounts(100000)
+  const linearCountsCor = cor_histogram.linearcounts(10000)
+  const logCounts = raw_histogram.logcounts(10000, 2.0)
+  const logCountsCor = cor_histogram.logcounts(10000, 2.0)
+  const recordedCounts = raw_histogram.recordedcounts()
+  const recordedCountsCor = cor_histogram.recordedcounts()
+
+  t.equal(linearCounts[0].count, 10000, 'linear count at 0 is 10000')
+  t.equal(linearCounts[99].count, 0, 'linear count at 99 is 0')
+  t.equal(linearCounts[499].count, 0, 'linear count at 499 is 0')
+  t.equal(linearCounts[999].count, 1, 'linear count at 999 is 1')
+
+  t.equal(linearCountsCor[0].count, 10001, 'corrected linear count at 0 is 10001')
+  t.equal(linearCountsCor.length, 10000, 'corrected linear count length is 10000')
+  t.equal(countTotal(linearCountsCor), 20000, 'corrected total linear counts is 20000')
+
+  t.equal(logCounts[0].count, 10000, 'log count at 0 is 10000')
+  t.equal(logCounts[9].count, 0, 'log count at 9 is 0')
+  t.equal(logCounts[14].count, 1, 'log count at 14 is 1')
+
+  t.equal(logCountsCor[0].count, 10001, 'corrected log count at 0 is 10001')
+  t.equal(logCountsCor.length, 15, 'corrected log count length is 15')
+  t.equal(countTotal(logCountsCor), 20000, 'corrected total log counts is 20000')
+
+  t.equal(recordedCounts[0].count, 10000, 'recorded count at 1 is 10000')
+  t.equal(recordedCounts[1].count, 1, 'recorded count at 1 is 1')
+
+  t.equal(recordedCountsCor[0].count, 10000, 'corrected recorded count 1 is 10000')
+  t.equal(countTotal(recordedCountsCor), 20000, 'corrected total recorded counts is 20000')
+
+  t.end()
+})
+
 test('support >2e9', (t) => {
   const recordValue = 4 * 1e9
   const instance = new Histogram(1, recordValue)

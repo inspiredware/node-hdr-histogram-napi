@@ -1,6 +1,6 @@
 {
   "name": "node-hdr-histogram-napi",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A lightweight N-API wrapper for the HdrHistogram_c library",
   "author": "Jim Schlight <jim@inspiredware.com>",
   "license": "MIT",

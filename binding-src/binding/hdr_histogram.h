@@ -1,4 +1,4 @@
-// 2020-06-26T15:58:55.941-07:00 binding hdr_histogram.c (GenerateDeclarations)
+// 2020-07-08T13:10:42.125-07:00 binding hdr_histogram.c (GenerateDeclarations)
 // © Copyright 2020 Simply Inspired Software, Inc., dba inspiredware
 // Released under the MIT License — https://en.wikipedia.org/wiki/MIT_License
 // Created by the inspiredware automated binding generator — https://inspiredware.com
@@ -16,13 +16,9 @@ class HdrHistogram : public Napi::ObjectWrap<HdrHistogram> {
 
  private:
   Napi::Value recordCorrectedValue (const Napi::CallbackInfo& info);
-  Napi::Value recordCorrectedValueAtomic (const Napi::CallbackInfo& info);
   Napi::Value recordCorrectedValues (const Napi::CallbackInfo& info);
-  Napi::Value recordCorrectedValuesAtomic (const Napi::CallbackInfo& info);
   Napi::Value recordValue (const Napi::CallbackInfo& info);
-  Napi::Value recordAtomic (const Napi::CallbackInfo& info);
   Napi::Value recordValues (const Napi::CallbackInfo& info);
-  Napi::Value recordValuesAtomic (const Napi::CallbackInfo& info);
   Napi::Value valuesAreEquivalent (const Napi::CallbackInfo& info);
   Napi::Value mean (const Napi::CallbackInfo& info);
   Napi::Value stddev (const Napi::CallbackInfo& info);
@@ -67,6 +63,9 @@ class HdrHistogramIterator : public Napi::ObjectWrap<HdrHistogramIterator> {
 
   Napi::Value getValue (const Napi::CallbackInfo& info);
   Napi::Value getPercentile (const Napi::CallbackInfo& info);
+  Napi::Value getCountLinear (const Napi::CallbackInfo& info);
+  Napi::Value getCountLog (const Napi::CallbackInfo& info);
+  Napi::Value getCountRecorded (const Napi::CallbackInfo& info);
 
   struct hdr_iter iterStruct;
   struct hdr_iter * iter;
