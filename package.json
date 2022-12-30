@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "bindings": "^1.5.0",
-    "mocha": "^7.1.2",
+    "mocha": "^10.2.0",
     "node-addon-api": "^1.1.0",
     "node-gyp": "^7.0.0",
     "prebuild-install": "^5.3.4",
